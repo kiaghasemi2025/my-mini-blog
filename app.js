@@ -1,9 +1,20 @@
-
 const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config()
+
+const authRouter = require('./routes/auth')
 
 const app = express();
 
-app.listen(2000,() => {
-    console.log(`Server is Listening on port 2000`);
-    
+app.use(express.json())
+app.use('/auth',authRouter)
+
+const Uri = process.env.MONGODB_URI;
+const Port = process.env.Port;
+
+mongoose.connect(`${Uri}`).then(result => {
+    app.listen(Port, () => {
+        console.log(`Server is Listening on port ${Port}`);
+    })
 })
+.catch(err => console.log('mongo db fails to connect' , err.message))
