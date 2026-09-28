@@ -10,7 +10,7 @@ app.use(express.json())
 app.use('/auth',authRouter)
 
 const Uri = process.env.MONGODB_URI;
-const Port = process.env.Port;
+const Port = process.env.PORT;
 
 mongoose.connect(`${Uri}`).then(result => {
     app.listen(Port, () => {

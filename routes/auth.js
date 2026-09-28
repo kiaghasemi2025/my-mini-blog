@@ -12,5 +12,11 @@ Router.post('/signup',
      ] 
      , authController.postSignup)
 
+Router.post('/login',
+   [
+      body('email', 'Invalid Email or Password').isEmail() ,
+      body('password' , 'Invalid Email or Password').isLength({min:6})
+   ] ,
+   authController.postLogin)
 
 module.exports = Router
