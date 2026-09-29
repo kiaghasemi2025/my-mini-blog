@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 require('dotenv').config()
 
 const authRouter = require('./routes/auth')
+const postRouter = require('./routes/posts')
 
 const app = express();
 
 app.use(express.json())
 app.use('/auth',authRouter)
+app.use('/post',postRouter)
 
 const Uri = process.env.MONGODB_URI;
 const Port = process.env.PORT;
