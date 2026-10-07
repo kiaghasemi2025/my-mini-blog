@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const AppError = require('../middlewares/AppError')
 const jwt = require('jsonwebtoken');
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -12,7 +13,7 @@ exports.postSignup = async (req, res, next) => {
         const error = validationResult(req);
         if (!error.isEmpty()) {
             console.log(error.array());
-            return res.status(422).json({ error: error.array()[0].msg })
+            return next(new AppError(error.array()[0].msg, 422))
         }
 
         const email = req.body.email;
@@ -32,10 +33,9 @@ exports.postSignup = async (req, res, next) => {
 
     } catch (error) {
         if (error.code === 11000) {
-            return res.status(409).json({ error: 'Email already in use' })
+            return next(new AppError('Email already in use',409))
         }
-        console.log(error);
-        res.status(500).json({ error: error.message })
+        next(error)
     }
 }
 
@@ -44,18 +44,19 @@ exports.postLogin = async (req, res, next) => {
         const error = validationResult(req);
         if (!error.isEmpty()) {
             console.log(error.array());
-            return res.status(422).json({ error: error.array()[0].msg })
+            return next(new AppError(error.array()[0].msg, 422))
         }
 
         const { email, password } = req.body;
 
         const user = await User.findOne({ email: email })
         if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' })
+            return next(new AppError('Invalid email or password', 401))
         }
         const isEqual = await bcrypt.compare(password, user.password);
         if (!isEqual) {
-            return res.status(401).json({ error: 'Invalid email or password' })
+            return next(new AppError('Invalid email or password', 401))
+
         }
 
         const { password: _, ...userWithoutPassword } = user.toObject();
@@ -68,7 +69,6 @@ exports.postLogin = async (req, res, next) => {
         res.status(200).json({ token: token, user: userWithoutPassword })
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error.message })
+        next(error)
     }
 }

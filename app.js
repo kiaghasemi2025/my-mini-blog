@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const errorHandler = require('./middlewares/error-hadler')
 require('dotenv').config()
 
 const authRouter = require('./routes/auth')
@@ -10,6 +11,8 @@ const app = express();
 app.use(express.json())
 app.use('/auth',authRouter)
 app.use('/post',postRouter)
+
+app.use(errorHandler)
 
 const Uri = process.env.MONGODB_URI;
 const Port = process.env.PORT;
