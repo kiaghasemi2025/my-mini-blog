@@ -1,5 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit')
 const errorHandler = require('./middlewares/error-hadler')
 require('dotenv').config()
 
@@ -8,6 +11,10 @@ const postRouter = require('./routes/posts')
 
 const app = express();
 
+app.use(helmet())
+app.use(cors({
+    origin:'*' // TODO: restrict to my frontend's URL once it exists, e.g. 'http://localhost:30000'
+}))
 app.use(express.json())
 app.use('/auth',authRouter)
 app.use('/post',postRouter)
