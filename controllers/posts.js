@@ -5,11 +5,22 @@ const { validationResult } = require('express-validator')
 
 exports.getPosts = async (req, res, next) => {
     try {
-        const posts = await Post.find();
-        if (!posts) {
-            return res.status(200).json({ message: "There are no posts" })
-        }
-        res.status(200).json({ message: "Posts", posts: posts })
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        if (page < 1) page = 1;
+        if (limit < 1) limit = 10;
+
+        const totalPosts = await Post.countDocuments();
+        const posts = await Post.find().skip((page - 1) * limit).limit(limit);
+
+        res.status(200).json({
+            message: "Posts",
+            posts,
+            currentPage: page,
+            totalPages: Math.ceil(totalPosts / limit),
+            totalPosts
+        })
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: error.message })
@@ -90,7 +101,7 @@ exports.updatePost = async (req, res, next) => {
 
         const { title, content } = req.body;
 
-        const updatedPost = await Post.findByIdAndUpdate(id, { title, content } , { returnDocument: "after", runValidators: true })
+        const updatedPost = await Post.findByIdAndUpdate(id, { title, content }, { returnDocument: "after", runValidators: true })
 
         res.status(200).json({ message: "Updated post", updatedPost })
 
